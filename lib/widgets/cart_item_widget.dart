@@ -33,6 +33,31 @@ class CartItemWidget extends StatelessWidget {
         Provider.of<Cart>(context, listen: false)
             .removeItem(cartItem.productId);
       },
+      confirmDismiss: (_) async {
+        return showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text('Alerta'),
+              content: Text('Deseja mesmo remover este item?'),
+              actions: <Widget>[
+                FlatButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(false);
+                  },
+                  child: Text('Não'),
+                ),
+                FlatButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(true);
+                  },
+                  child: Text('Sim'),
+                ),
+              ],
+            );
+          },
+        );
+      },
       child: Card(
         margin: const EdgeInsets.symmetric(
           vertical: 4,
@@ -52,7 +77,8 @@ class CartItemWidget extends StatelessWidget {
               ),
             ),
             title: Text(cartItem.title),
-            subtitle: Text('Total: R\$ ${cartItem.price * cartItem.quantity}'),
+            subtitle: Text(
+                'Total: R\$ ${(cartItem.price * cartItem.quantity).toStringAsFixed(2)}'),
             trailing: Text('${cartItem.quantity}x'),
           ),
         ),
