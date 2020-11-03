@@ -25,19 +25,34 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     _focusImageUrl.addListener(updateImageUrl);
   }
 
+  bool _isValidImageUrl(String url) {
+    bool startsWithHttp = url.toLowerCase().startsWith('http://');
+    bool startsWithHttps = url.toLowerCase().startsWith('https://');
+    bool endsWithPng = url.toLowerCase().endsWith('.png');
+    bool endsWithJpg = url.toLowerCase().endsWith('.jpg');
+    bool endsWithJpeg = url.toLowerCase().endsWith('.jpeg');
+
+    return (startsWithHttp || startsWithHttps) &&
+        (endsWithPng || endsWithJpg || endsWithJpeg);
+  }
+
   void updateImageUrl() {
-    setState(() {});
+    if (_isValidImageUrl(_imageUrlController.text)) {
+      setState(() {});
+    }
   }
 
   void _saveForm() {
     _formKey.currentState.save();
-    final newProduct = Product(
-      id: Random().nextDouble().toString(),
-      title: _formData['title'],
-      price: _formData['price'],
-      description: _formData['description'],
-      imageUrl: _formData['imageUrl'],
-    );
+    if (_formKey.currentState.validate()) {
+      final newProduct = Product(
+        id: Random().nextDouble().toString(),
+        title: _formData['title'],
+        price: _formData['price'],
+        description: _formData['description'],
+        imageUrl: _formData['imageUrl'],
+      );
+    }
 
     print(_formData);
   }
@@ -70,6 +85,16 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
           child: ListView(
             children: [
               TextFormField(
+                validator: (value) {
+                  if (value.trim().isEmpty) {
+                    return 'Informe um titulo válido';
+                  }
+
+                  if (value.trim().length <= 3) {
+                    return 'Informe um titulo com no minimo 3 letras';
+                  }
+                  return null;
+                },
                 decoration: InputDecoration(
                   labelText: 'Título',
                 ),
@@ -81,6 +106,19 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
               ),
               TextFormField(
                 focusNode: _focusPreco,
+                validator: (value) {
+                  var newPrice = double.tryParse(value);
+
+                  if (value.trim().isEmpty) {
+                    return 'Informe um preço válido';
+                  }
+
+                  if (newPrice == null || newPrice <= 0) {
+                    return 'Informe um preço válido';
+                  }
+
+                  return null;
+                },
                 decoration: InputDecoration(
                   labelText: 'Preço',
                 ),
@@ -95,6 +133,13 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
               ),
               TextFormField(
                 focusNode: _focusDescription,
+                validator: (value) {
+                  if (value.trim().length <= 3) {
+                    return 'Informe uma descrição valida';
+                  }
+
+                  return null;
+                },
                 decoration: InputDecoration(
                   labelText: 'Descrição',
                 ),
@@ -109,6 +154,17 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                     child: TextFormField(
                       focusNode: _focusImageUrl,
                       controller: _imageUrlController,
+                      validator: (value) {
+                        if (value.trim().isEmpty) {
+                          return 'Informe uma url valida';
+                        }
+
+                        if (!_isValidImageUrl(value)) {
+                          return 'Informe uma url valida';
+                        }
+
+                        return null;
+                      },
                       decoration: InputDecoration(
                         labelText: 'URL da Imagem',
                       ),
