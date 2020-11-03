@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:shop/providers/product.dart';
 
 class ProductFormScreen extends StatefulWidget {
   @override
@@ -12,6 +15,10 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
 
   final _imageUrlController = TextEditingController();
 
+  final _formKey = GlobalKey<FormState>();
+
+  final _formData = Map<String, Object>();
+
   @override
   void initState() {
     super.initState();
@@ -20,6 +27,19 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
 
   void updateImageUrl() {
     setState(() {});
+  }
+
+  void _saveForm() {
+    _formKey.currentState.save();
+    final newProduct = Product(
+      id: Random().nextDouble().toString(),
+      title: _formData['title'],
+      price: _formData['price'],
+      description: _formData['description'],
+      imageUrl: _formData['imageUrl'],
+    );
+
+    print(_formData);
   }
 
   @override
@@ -36,10 +56,17 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Formulário Produto'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.save),
+            onPressed: _saveForm,
+          )
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(15),
         child: Form(
+          key: _formKey,
           child: ListView(
             children: [
               TextFormField(
@@ -50,6 +77,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                 onFieldSubmitted: (_) {
                   FocusScope.of(context).requestFocus(_focusPreco);
                 },
+                onSaved: (value) => _formData['title'] = value,
               ),
               TextFormField(
                 focusNode: _focusPreco,
@@ -63,6 +91,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                 onFieldSubmitted: (_) {
                   FocusScope.of(context).requestFocus(_focusDescription);
                 },
+                onSaved: (value) => _formData['price'] = double.parse(value),
               ),
               TextFormField(
                 focusNode: _focusDescription,
@@ -71,6 +100,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                 ),
                 maxLines: 3,
                 keyboardType: TextInputType.multiline,
+                onSaved: (value) => _formData['description'] = value,
               ),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -85,7 +115,10 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                       maxLines: 3,
                       keyboardType: TextInputType.url,
                       textInputAction: TextInputAction.done,
-                      onFieldSubmitted: (_) {},
+                      onFieldSubmitted: (_) {
+                        _saveForm();
+                      },
+                      onSaved: (value) => _formData['imageUrl'] = value,
                     ),
                   ),
                   Container(
