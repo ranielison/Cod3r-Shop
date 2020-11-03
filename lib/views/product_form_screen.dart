@@ -7,6 +7,14 @@ class ProductFormScreen extends StatefulWidget {
 
 class _ProductFormScreenState extends State<ProductFormScreen> {
   final _focusPreco = FocusNode();
+  final _focusDescription = FocusNode();
+
+  @override
+  void dispose() {
+    _focusPreco.dispose();
+    _focusDescription.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +45,18 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                   decimal: true,
                 ),
                 textInputAction: TextInputAction.next,
-              )
+                onFieldSubmitted: (_) {
+                  FocusScope.of(context).requestFocus(_focusDescription);
+                },
+              ),
+              TextFormField(
+                focusNode: _focusDescription,
+                decoration: InputDecoration(
+                  labelText: 'Descrição',
+                ),
+                maxLines: 3,
+                keyboardType: TextInputType.multiline,
+              ),
             ],
           ),
         ),
