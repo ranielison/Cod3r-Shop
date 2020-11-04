@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shop/providers/product.dart';
+import 'package:shop/providers/products.dart';
 import 'package:shop/utils/app_routes.dart';
 
 class ProductItem extends StatelessWidget {
@@ -38,7 +40,33 @@ class ProductItem extends StatelessWidget {
                 Icons.delete,
                 color: Theme.of(context).errorColor,
               ),
-              onPressed: () {},
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: Text('Alerta'),
+                      content: Text('Deseja mesmo remover este produto?'),
+                      actions: <Widget>[
+                        FlatButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: Text('Não'),
+                        ),
+                        FlatButton(
+                          onPressed: () {
+                            Provider.of<Products>(context, listen: false)
+                                .deleteProduct(product.id);
+                            Navigator.of(context).pop(true);
+                          },
+                          child: Text('Sim'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
             )
           ],
         ),
