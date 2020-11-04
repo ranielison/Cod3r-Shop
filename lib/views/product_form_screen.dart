@@ -27,6 +27,26 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     _focusImageUrl.addListener(updateImageUrl);
   }
 
+  @override
+  didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (_formData.isEmpty) {
+      final product = ModalRoute.of(context).settings.arguments as Product;
+
+      if (product != null) {
+        _formData['id'] = product.id;
+        _formData['title'] = product.title;
+        _formData['price'] = product.price;
+        _formData['imageUrl'] = product.imageUrl;
+
+        _imageUrlController.text = _formData['imageUrl'];
+      } else {
+        _formData['price'] = '';
+      }
+    }
+  }
+
   bool _isValidImageUrl(String url) {
     bool startsWithHttp = url.toLowerCase().startsWith('http://');
     bool startsWithHttps = url.toLowerCase().startsWith('https://');
@@ -48,14 +68,20 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     _formKey.currentState.save();
     if (_formKey.currentState.validate()) {
       final newProduct = Product(
-        id: Random().nextDouble().toString(),
+        id: _formData['id'],
         title: _formData['title'],
         price: _formData['price'],
         description: _formData['description'],
         imageUrl: _formData['imageUrl'],
       );
 
-      Provider.of<Products>(context, listen: false).addProduct(newProduct);
+      final products = Provider.of<Products>(context, listen: false);
+      if (_formData['id'] == null) {
+        products.addProduct(newProduct);
+      } else {
+        products.updateProduct(newProduct);
+      }
+
       Navigator.of(context).pop();
     }
   }
@@ -88,6 +114,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
           child: ListView(
             children: [
               TextFormField(
+                initialValue: _formData['title'],
                 validator: (value) {
                   if (value.trim().isEmpty) {
                     return 'Informe um titulo válido';
@@ -108,6 +135,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                 onSaved: (value) => _formData['title'] = value,
               ),
               TextFormField(
+                initialValue: _formData['price'].toString(),
                 focusNode: _focusPreco,
                 validator: (value) {
                   var newPrice = double.tryParse(value);
@@ -135,6 +163,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                 onSaved: (value) => _formData['price'] = double.parse(value),
               ),
               TextFormField(
+                initialValue: _formData['description'],
                 focusNode: _focusDescription,
                 validator: (value) {
                   if (value.trim().length <= 3) {
