@@ -64,7 +64,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     }
   }
 
-  void _saveForm() {
+  Future<void> _saveForm() async {
     _formKey.currentState.save();
     if (_formKey.currentState.validate()) {
       final newProduct = Product(
@@ -81,36 +81,35 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
 
       final products = Provider.of<Products>(context, listen: false);
       if (_formData['id'] == null) {
-        products.addProduct(newProduct).catchError(
-          (error) {
-            return showDialog<Null>(
-              context: context,
-              builder: (ctx) {
-                return AlertDialog(
-                  title: Text('Ocorreu um erro !'),
-                  content: Text('Houve um erro no armazenamento do produto'),
-                  actions: <Widget>[
-                    FlatButton(
-                      child: Text('Ok'),
-                      onPressed: () => Navigator.of(context).pop(),
-                    )
-                  ],
-                );
-              },
-            );
-          },
-        ).then((_) {
+        try {
+          await products.addProduct(newProduct);
+          Navigator.of(context).pop();
+        } catch (error) {
+          await showDialog<Null>(
+            context: context,
+            builder: (ctx) {
+              return AlertDialog(
+                title: Text('Ocorreu um erro !'),
+                content: Text('Houve um erro no armazenamento do produto'),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text('Ok'),
+                    onPressed: () => Navigator.of(context).pop(),
+                  )
+                ],
+              );
+            },
+          );
+        } finally {
           setState(() {
             _isLoading = false;
           });
-          Navigator.of(context).pop();
-        });
+        }
       } else {
         products.updateProduct(newProduct);
         setState(() {
           _isLoading = false;
         });
-        Navigator.of(context).pop();
       }
     }
   }

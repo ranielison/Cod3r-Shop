@@ -37,8 +37,7 @@ class Products with ChangeNotifier {
   Future<void> addProduct(Product newProduct) async {
     const url = 'https://flutter-cod3r-69173.firebaseio.com/products.json';
 
-    return http
-        .post(
+    final response = await http.post(
       url,
       body: json.encode(
         {
@@ -49,22 +48,19 @@ class Products with ChangeNotifier {
           'isFavorite': newProduct.isFavorite,
         },
       ),
-    )
-        .then(
-      (response) {
-        String id = json.decode(response.body)['name'];
-        _items.add(
-          Product(
-            id: id,
-            title: newProduct.title,
-            price: newProduct.price,
-            description: newProduct.description,
-            imageUrl: newProduct.imageUrl,
-          ),
-        );
-        notifyListeners();
-      },
     );
+
+    _items.add(
+      Product(
+        id: json.decode(response.body)['name'],
+        title: newProduct.title,
+        price: newProduct.price,
+        description: newProduct.description,
+        imageUrl: newProduct.imageUrl,
+      ),
+    );
+
+    notifyListeners();
   }
 
   void updateProduct(Product product) {
