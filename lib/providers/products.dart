@@ -23,6 +23,7 @@ class Products with ChangeNotifier {
     );
 
     Map<String, dynamic> data = json.decode(response.body);
+    _items.clear();
     if (data != null) {
       data.forEach(
         (productId, productData) {
