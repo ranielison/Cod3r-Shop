@@ -81,7 +81,25 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
 
       final products = Provider.of<Products>(context, listen: false);
       if (_formData['id'] == null) {
-        products.addProduct(newProduct).then((_) {
+        products.addProduct(newProduct).catchError(
+          (error) {
+            return showDialog<Null>(
+              context: context,
+              builder: (ctx) {
+                return AlertDialog(
+                  title: Text('Ocorreu um erro !'),
+                  content: Text('Houve um erro no armazenamento do produto'),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text('Ok'),
+                      onPressed: () => Navigator.of(context).pop(),
+                    )
+                  ],
+                );
+              },
+            );
+          },
+        ).then((_) {
           setState(() {
             _isLoading = false;
           });
