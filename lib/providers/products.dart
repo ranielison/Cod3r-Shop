@@ -3,42 +3,50 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:shop/data/dummy_data.dart';
 import 'package:shop/providers/product.dart';
 
 class Products with ChangeNotifier {
-  List<Product> _items = DUMMY_PRODUCTS;
-
-  //bool _showFavoriteOnly = false;
+  List<Product> _items = [];
+  final String _baseUrl = 'https://flutter-cod3r-69173.firebaseio.com';
 
   int get itemsCount => _items.length;
 
-  List<Product> get items {
-    /*if (_showFavoriteOnly) {
-      return _items.where((prod) => prod.isFavorite).toList();
-    }*/
-    return [..._items];
-  }
+  List<Product> get items => [..._items];
 
   List<Product> get favoriteItems {
     return _items.where((prod) => prod.isFavorite).toList();
   }
 
-  /*void showFavoriteOnly() {
-    _showFavoriteOnly = true;
-    notifyListeners();
+  Future<void> loadProducts() async {
+    final response = await http.get(
+      _baseUrl + '/products.json',
+    );
+
+    Map<String, dynamic> data = json.decode(response.body);
+    if (data != null) {
+      data.forEach(
+        (productId, productData) {
+          _items.add(
+            Product(
+              id: json.decode(response.body)['name'],
+              title: productData['title'],
+              price: productData['price'],
+              description: productData['description'],
+              imageUrl: productData['imageUrl'],
+              isFavorite: productData['isFavorite'],
+            ),
+          );
+        },
+      );
+      notifyListeners();
+    }
+
+    return Future.value();
   }
 
-  void showAll() {
-    _showFavoriteOnly = false;
-    notifyListeners();
-  }*/
-
   Future<void> addProduct(Product newProduct) async {
-    const url = 'https://flutter-cod3r-69173.firebaseio.com/products.json';
-
     final response = await http.post(
-      url,
+      _baseUrl + '/products.json',
       body: json.encode(
         {
           'title': newProduct.title,
