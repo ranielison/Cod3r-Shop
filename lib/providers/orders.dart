@@ -1,10 +1,8 @@
 import 'dart:convert';
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shop/providers/cart.dart';
-import 'package:shop/providers/product.dart';
+import 'package:shop/utils/constants.dart';
 
 class Order {
   final String id;
@@ -21,7 +19,6 @@ class Order {
 }
 
 class Orders with ChangeNotifier {
-  final String _baseUrl = 'https://flutter-cod3r-69173.firebaseio.com';
   List<Order> _items = [];
 
   List<Order> get items {
@@ -34,7 +31,7 @@ class Orders with ChangeNotifier {
     List<Order> loadedItems = [];
 
     final response = await http.get(
-      _baseUrl + '/orders.json',
+      Constants.BASE_URL + '/orders.json',
     );
 
     Map<String, dynamic> data = json.decode(response.body);
@@ -58,7 +55,7 @@ class Orders with ChangeNotifier {
           ),
         );
       });
-      notifyListeners();
+      //notifyListeners();
     }
 
     _items = loadedItems.reversed.toList();
@@ -70,7 +67,7 @@ class Orders with ChangeNotifier {
     final date = DateTime.now();
 
     final response = await http.post(
-      _baseUrl + '/orders.json',
+      Constants.BASE_URL + '/orders.json',
       body: json.encode(
         {
           'total': cart.totalAmount,
