@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -29,7 +28,7 @@ class Products with ChangeNotifier {
         (productId, productData) {
           _items.add(
             Product(
-              id: json.decode(response.body)['name'],
+              id: productId,
               title: productData['title'],
               price: productData['price'],
               description: productData['description'],
@@ -72,7 +71,7 @@ class Products with ChangeNotifier {
     notifyListeners();
   }
 
-  void updateProduct(Product product) {
+  Future<void> updateProduct(Product product) async {
     if (product == null || product.id == null) {
       return;
     }
@@ -80,7 +79,17 @@ class Products with ChangeNotifier {
     final index = _items.indexWhere((prod) => prod.id == product.id);
 
     if (index >= 0) {
+      await http.patch(
+        _baseUrl + '/products/${product.id}.json',
+        body: json.encode({
+          'title': product.title,
+          'price': product.price,
+          'description': product.description,
+          'imageUrl': product.imageUrl,
+        }),
+      );
       _items[index] = product;
+
       notifyListeners();
     }
   }
