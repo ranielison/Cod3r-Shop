@@ -38,27 +38,26 @@ class Orders with ChangeNotifier {
     );
 
     Map<String, dynamic> data = json.decode(response.body);
+
     if (data != null) {
-      data.forEach(
-        (orderId, orderData) {
-          loadedItems.add(
-            Order(
-              id: orderId,
-              total: orderData['total'],
-              date: DateTime.parse(orderData['date']),
-              products: (orderData['products'] as List).map((item) {
-                return CartItem(
-                  id: item['id'],
-                  title: item['title'],
-                  productId: item['productId'],
-                  price: item['price'],
-                  quantity: item['quantity'],
-                );
-              }).toList(),
-            ),
-          );
-        },
-      );
+      data.forEach((orderId, orderData) {
+        loadedItems.add(
+          Order(
+            id: orderId,
+            total: orderData['total'],
+            date: DateTime.parse(orderData['date']),
+            products: (orderData['products'] as List<dynamic>).map((item) {
+              return CartItem(
+                id: item['id'],
+                price: item['price'],
+                productId: item['productId'],
+                quantity: item['quantity'],
+                title: item['title'],
+              );
+            }).toList(),
+          ),
+        );
+      });
       notifyListeners();
     }
 

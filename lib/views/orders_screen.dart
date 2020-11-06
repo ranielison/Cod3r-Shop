@@ -15,11 +15,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
   @override
   void initState() {
     super.initState();
-    Provider.of<Orders>(context, listen: false).loadOrders().then((value) {
+    /*Provider.of<Orders>(context, listen: false).loadOrders().then((value) {
       setState(() {
         _isLoading = false;
       });
-    });
+    });*/
   }
 
   @override
@@ -31,7 +31,30 @@ class _OrdersScreenState extends State<OrdersScreen> {
         title: Text('Meus pedidos'),
       ),
       drawer: AppDrawer(),
-      body: _isLoading
+      body: FutureBuilder(
+        future: Provider.of<Orders>(context, listen: false).loadOrders(),
+        builder: (ctx, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          } else {
+            return Consumer<Orders>(
+              builder: (ctx, orders, child) {
+                return ListView.builder(
+                  itemCount: orders.itemsCount,
+                  itemBuilder: (ctx, index) {
+                    return OrderWidget(
+                      order: orders.items[index],
+                    );
+                  },
+                );
+              },
+            );
+          }
+        },
+      ),
+      /*_isLoading
           ? Center(
               child: CircularProgressIndicator(),
             )
@@ -42,7 +65,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   order: orders.items[index],
                 );
               },
-            ),
+            ),*/
     );
   }
 }
